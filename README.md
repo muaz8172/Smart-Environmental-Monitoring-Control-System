@@ -2,84 +2,169 @@
 
 ## 📌 Project Overview
 
-This project is designed to monitor and control environmental conditions such as **temperature, humidity, air quality, light intensity, and distance detection** in real-time.
+This project is a **multi-module environmental monitoring and control system** that collects, processes, and visualizes real-time data such as temperature, humidity, air quality, light intensity, and distance.
 
-It integrates multiple sensors with a microcontroller and a visualization platform (Node-RED) to provide accurate monitoring and potential automation control.
-
-This system is suitable for applications such as **smart homes, greenhouses, laboratories, and industrial environments**.
-
----
-
-## ⚙️ System Features
-
-* 🌡️ Temperature monitoring
-* 💧 Humidity tracking
-* 🌫️ Air quality / dust detection
-* 📏 Distance measurement (object detection)
-* 💡 Light intensity sensing
-* 📊 Real-time data visualization (Node-RED)
-* ⚡ Motor control using driver circuit
-
----
-
-## 🧰 Components Used
-
-### 🔌 Sensors
-
-* **DHT11** → Temperature & Humidity sensor
-* **BMP180** → Atmospheric pressure sensor
-* **PPD42** → Dust / air quality sensor
-* **HC-SR04 Ultrasonic** → Distance measurement
-* **LDR** → Light intensity detection
-
-### ⚙️ Actuator & Driver
-
-* **L293D Motor Driver** → Controls DC motor direction and speed
-* **DC Motor** → Used for control action (e.g., fan/ventilation system)
-
----
-
-## 🧠 System Architecture
-
-Sensor Data → Arduino → Data Processing → Node-RED → Dashboard Display → Motor Control
+The system integrates **Arduino, Python, Node-RED, and database systems** to provide a complete monitoring solution with control capability.
 
 ---
 
 ## 📂 Project Structure
 
-* `/Arduino` → Microcontroller code
-* `/Node-RED` → Flow configuration (.json)
-* `/Report` → Project documentation
-* `/Images` → Circuit diagrams and setup
+```
+/Arduino      → Microcontroller programs (sensor reading & control)
+/Python       → Data processing, communication (HTTP/MQTT), database handling
+/Node-RED     → Dashboard visualization
+/Database     → Stored sensor data (Access, SQLite, CSV)
+/Circuit      → Proteus circuit design
+README.md
+```
 
 ---
 
-## 🚀 How It Works
+## ⚙️ System Features
 
-1. Sensors collect environmental data continuously
-2. Arduino reads and processes sensor inputs
-3. Data is transmitted to Node-RED
-4. Node-RED dashboard displays real-time values
-5. Motor can be activated based on conditions (e.g., high temperature or poor air quality)
+* 🌡️ Temperature & humidity monitoring (DHT11)
+* 🌫️ Air quality detection (PPD42)
+* 📏 Distance measurement (HC-SR04)
+* 💡 Light intensity sensing (LDR)
+* 📊 Real-time dashboard (Node-RED)
+* 🔄 Data storage (SQLite / Access / CSV)
+* ⚡ Motor control using L293D
 
 ---
 
-## 📈 Example Output
+## 🧰 Components Used
 
-* Temperature & humidity graph
-* Air quality monitoring display
-* Distance detection readings
-* Light intensity indication
-* Real-time dashboard interface
+**Sensors:**
+
+* DHT11 → Temperature & Humidity
+* BMP180 → Pressure
+* PPD42 → Dust / Air Quality
+* HC-SR04 → Distance
+* LDR → Light
+
+**Actuator:**
+
+* L293D Motor Driver + DC Motor
+
+---
+
+## 🧠 System Architecture
+
+Sensors → Arduino → Python Processing → Database → Node-RED Dashboard → Control Action
+
+---
+
+## 📘 Module Explanation
+
+### 🔹 Module 3 – Sensor Integration (Arduino + Python)
+
+This module focuses on **reading sensor data and basic processing**.
+
+**Files:**
+
+* `Module_3.ino`, `Module_3_V2.ino`, `Module_3_V3.ino`
+* `Module_3.py`, `Module_3V2.py`
+
+**Function:**
+
+* Collect data from sensors (DHT11, LDR, Ultrasonic, etc.)
+* Send data to computer via serial communication
+* Python reads and formats the data
+
+👉 This is the **core data acquisition stage**
+
+---
+
+### 🔹 Module 4 – Communication Protocol (HTTP & MQTT)
+
+This module handles **data transmission between systems**.
+
+**Files:**
+
+* `Module_4_HTTP.py`
+* `Module_4_MQTT.py`
+
+**Function:**
+
+* Send sensor data using **HTTP requests**
+* Send real-time data using **MQTT protocol**
+* Connect system to Node-RED or external platforms
+
+👉 This enables **real-time IoT communication**
+
+---
+
+### 🔹 Module 5 – Database Management
+
+This module manages **data storage and retrieval**.
+
+**Files:**
+
+* `Module_5_M_ACCESS.py`
+* `Module_5_SQLITE.py`
+* `Sensor_database.accdb`
+* `Sensor_database.db`
+* `sensor_data.csv`
+
+**Function:**
+
+* Store sensor data into databases
+* Support multiple formats:
+
+  * Microsoft Access
+  * SQLite
+  * CSV
+* Retrieve and manage stored data
+
+👉 This provides **data logging and history tracking**
+
+---
+
+## 📊 Visualization (Node-RED)
+
+**File:**
+
+* `Dashboard_V2.json`
+
+**Function:**
+
+* Display real-time sensor data
+* Plot graphs (temperature, humidity, etc.)
+* Provide monitoring dashboard interface
+
+---
+
+## 🔌 Circuit Design
+
+**File:**
+
+* `MODULE 3 CIRCUIT.pdsprj`
+
+**Function:**
+
+* Simulated using Proteus
+* Shows full hardware connection of sensors and Arduino
+
+---
+
+## 🚀 How the System Works
+
+1. Sensors collect environmental data
+2. Arduino reads and sends data
+3. Python processes and transmits data
+4. Data is stored in database
+5. Node-RED displays real-time dashboard
+6. System can trigger control actions (motor)
 
 ---
 
 ## 🔧 Future Improvements
 
-* IoT integration (MQTT / cloud monitoring)
-* Mobile application interface
-* Automated decision-making system
-* Data logging and analytics
+* Cloud integration (Firebase / IoT platform)
+* Mobile monitoring application
+* AI-based prediction system
+* Fully automated control system
 
 ---
 

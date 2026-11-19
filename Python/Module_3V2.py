@@ -7,7 +7,7 @@ import re
 # =========================
 # SETTINGS
 # =========================
-PORT = 'COM4'
+PORT = 'COM2'
 BAUD = 9600
 CSV_FILE = 'SERIALDATAFINALLOG.csv'
 PRINT_INTERVAL = 30  # save to CSV every 30 seconds

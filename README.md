@@ -138,6 +138,8 @@ Proteus Arduino ⇄ COM2 ⇄ serial_mqtt_bridge ⇄ Mosquitto ⇄ ai_brain
                        Node-RED http://localhost:1880/ir7  (+ SQLite AI_Events)
 ```
 
+**Firmware safety (IEC 60730-1 Annex H / IEC 61508-3 principles):** 8 s hardware watchdog, I2C timeout, sensor plausibility checks (DHT11 `nan`, missing or implausible BMP180, no ultrasonic echo). On a sensor fault the LCD shows **SENSOR FAULT**, the red LED and buzzer turn on, the fan goes to its safe state (OFF), and the faulty value is sent as `nan` so the dashboard never shows it as live. If the PC stops sending commands for 10 s the Arduino returns to its local rules.
+
 **Files:** `Arduino/smart_env_firmware/smart_env_firmware.ino`, `Python/serial_mqtt_bridge.py`, `Python/ai_brain.py`, `Python/serial_link_check.py`, `Node-RED/IR7_HTML_Dashboard.json` (built from `ir7_dashboard.html` by `build_ir7_flow.py`)
 
 **Setup (once)**

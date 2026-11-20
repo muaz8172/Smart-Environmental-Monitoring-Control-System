@@ -215,5 +215,93 @@
     "name": "",
     "statusCode": "",
     "headers": {}
+  },
+  {
+    "id": "a17e00000000000f",
+    "type": "mqtt in",
+    "z": "a17e0000000000a1",
+    "x": 150,
+    "y": 440,
+    "wires": [
+      [
+        "a17e000000000010"
+      ]
+    ],
+    "name": "AI events",
+    "topic": "muaz/iot/mfi/events",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "fd80b27dfc9a2898",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0
+  },
+  {
+    "id": "a17e000000000010",
+    "type": "function",
+    "z": "a17e0000000000a1",
+    "x": 370,
+    "y": 440,
+    "wires": [
+      [
+        "a17e000000000011"
+      ]
+    ],
+    "name": "Insert AI_Events",
+    "func": "const ev = typeof msg.payload === 'string' ? JSON.parse(msg.payload) : msg.payload;\nif (!Array.isArray(ev)) return null;\nconst tag = m => (String(m).match(/temperature|humidity|pressure|dust|light|distance/i) || [''])[0];\nreturn [ev.map(e => ({topic: 'INSERT INTO AI_Events (Type, Sensor_ID, Message) VALUES ($type, ' +\n    '(SELECT Sensor_ID FROM Sensor WHERE Name = $sensor COLLATE NOCASE), $msg)',\n    payload: [String(e[0]).slice(0, 16), tag(e[1]), String(e[1]).slice(0, 255)]}))];",
+    "outputs": 1
+  },
+  {
+    "id": "a17e000000000011",
+    "type": "sqlite",
+    "z": "a17e0000000000a1",
+    "x": 580,
+    "y": 440,
+    "wires": [
+      []
+    ],
+    "name": "Save AI_Events",
+    "mydb": "50a196d0c453da90",
+    "sqlquery": "msg.topic",
+    "sql": ""
+  },
+  {
+    "id": "a17e000000000012",
+    "type": "inject",
+    "z": "a17e0000000000a1",
+    "x": 150,
+    "y": 520,
+    "wires": [
+      [
+        "a17e000000000013"
+      ]
+    ],
+    "name": "On start",
+    "props": [
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "0.5",
+    "topic": "-- Name   : Muhammad Muaz Bin Md Fazli\n-- Uni    : UniKL MFI\n-- Topic  : Smart Environmental & Monitoring System\n-- Relational schema (3NF) for Database/Sensor_database.db. Safe to run again (Node-RED runs it on start).\n\nPRAGMA foreign_keys = ON;\n\nCREATE TABLE IF NOT EXISTS Device (\n    Device_ID INTEGER PRIMARY KEY,\n    Model     TEXT NOT NULL UNIQUE,\n    Interface TEXT NOT NULL,\n    Pins      TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS Sensor (\n    Sensor_ID INTEGER PRIMARY KEY,\n    Device_ID INTEGER NOT NULL REFERENCES Device(Device_ID),\n    Name      TEXT NOT NULL UNIQUE,\n    Unit      TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS Alarm_Limit (\n    Sensor_ID    INTEGER PRIMARY KEY REFERENCES Sensor(Sensor_ID),\n    Low_Alarm    REAL,\n    Low_Warning  REAL,\n    High_Warning REAL,\n    High_Alarm   REAL,\n    Deadband     REAL NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS Reading (\n    Reading_ID INTEGER PRIMARY KEY AUTOINCREMENT,\n    Timestamp  TEXT DEFAULT (datetime('now','localtime')),\n    Fan_Status TEXT NOT NULL CHECK (Fan_Status IN ('ON', 'OFF')),\n    Mode       TEXT CHECK (Mode IN ('AI', 'LOCAL'))\n);\n\nCREATE TABLE IF NOT EXISTS Reading_Value (\n    Reading_ID INTEGER NOT NULL REFERENCES Reading(Reading_ID) ON DELETE CASCADE,\n    Sensor_ID  INTEGER NOT NULL REFERENCES Sensor(Sensor_ID),\n    Value      REAL NOT NULL,\n    PRIMARY KEY (Reading_ID, Sensor_ID)\n) WITHOUT ROWID;\n\nCREATE TABLE IF NOT EXISTS Event_Type (\n    Type        TEXT PRIMARY KEY,\n    Description TEXT\n);\n\nCREATE TABLE IF NOT EXISTS AI_Events (\n    ID        INTEGER PRIMARY KEY AUTOINCREMENT,\n    Timestamp TEXT DEFAULT (datetime('now','localtime')),\n    Type      TEXT NOT NULL REFERENCES Event_Type(Type),\n    Sensor_ID INTEGER REFERENCES Sensor(Sensor_ID),\n    Message   TEXT NOT NULL\n);\n\nINSERT OR IGNORE INTO Device VALUES\n    (1, 'DHT11',   'Digital (single wire)', 'D4'),\n    (2, 'BMP180',  'I2C',                   'A4 SDA, A5 SCL'),\n    (3, 'PPD42',   'Pulse (low time)',      'D5'),\n    (4, 'LDR',     'Analog',                'A1'),\n    (5, 'HC-SR04', 'Ultrasonic',            'D11 trig, D12 echo');\n\nINSERT OR IGNORE INTO Sensor VALUES\n    (1, 1, 'Temperature', '\u00b0C'),\n    (2, 1, 'Humidity',    '%'),\n    (3, 2, 'Pressure',    'hPa'),\n    (4, 3, 'Dust',        'index'),\n    (5, 4, 'Light',       'ADC 0-1023'),\n    (6, 5, 'Distance',    'cm');\n\n-- IEC 62682 limits (same values as LIMITS in Python/ai_brain.py)\nINSERT OR IGNORE INTO Alarm_Limit VALUES\n    (1, NULL, NULL, 35,   37,   0.5),\n    (2, 30,   35,   55,   60,   1),\n    (3, 980,  985,  1045, 1050, 1),\n    (4, NULL, NULL, 50,   55,   2),\n    (5, 500,  550,  NULL, NULL, 10);\n\nINSERT OR IGNORE INTO Event_Type VALUES\n    ('SYSTEM',     'AI brain started or stopped'),\n    ('DECISION',   'AI changed the fan decision'),\n    ('ANOMALY',    'Sudden spike or sensor fault'),\n    ('WARNING',    'Value passed a warning limit'),\n    ('ALARM',      'Value passed an alarm limit'),\n    ('CLEARED',    'Value back inside its limit'),\n    ('SUPPRESSED', 'Comfort alarm suppressed: room empty'),\n    ('ACK',        'Operator acknowledged an alarm'),\n    ('OVERRIDE',   'Human override changed or expired');\n\n-- One row per reading, in the same columns as the old Sensor_data table (used by the dashboards)\nCREATE VIEW IF NOT EXISTS Sensor_data AS\nSELECT r.Reading_ID, r.Timestamp,\n       MAX(CASE v.Sensor_ID WHEN 1 THEN v.Value END) AS Temperature,\n       MAX(CASE v.Sensor_ID WHEN 2 THEN v.Value END) AS Humidity,\n       MAX(CASE v.Sensor_ID WHEN 3 THEN v.Value END) AS Pressure,\n       MAX(CASE v.Sensor_ID WHEN 4 THEN v.Value END) AS Dust,\n       MAX(CASE v.Sensor_ID WHEN 5 THEN v.Value END) AS Light,\n       MAX(CASE v.Sensor_ID WHEN 6 THEN v.Value END) AS Distance,\n       r.Fan_Status, r.Mode\nFROM Reading r LEFT JOIN Reading_Value v ON v.Reading_ID = r.Reading_ID\nGROUP BY r.Reading_ID;\n\n-- INSERT INTO Sensor_data (...) splits one reading into Reading + Reading_Value rows\nCREATE TRIGGER IF NOT EXISTS Sensor_data_insert INSTEAD OF INSERT ON Sensor_data\nBEGIN\n    INSERT INTO Reading (Timestamp, Fan_Status, Mode)\n    VALUES (COALESCE(NEW.Timestamp, datetime('now','localtime')), NEW.Fan_Status, NEW.Mode);\n    INSERT INTO Reading_Value (Reading_ID, Sensor_ID, Value)\n    SELECT (SELECT MAX(Reading_ID) FROM Reading), s, v FROM (\n        SELECT 1 AS s, NEW.Temperature AS v UNION ALL SELECT 2, NEW.Humidity UNION ALL\n        SELECT 3, NEW.Pressure UNION ALL SELECT 4, NEW.Dust UNION ALL\n        SELECT 5, NEW.Light UNION ALL SELECT 6, NEW.Distance)\n    WHERE v IS NOT NULL;\nEND;\n"
+  },
+  {
+    "id": "a17e000000000013",
+    "type": "sqlite",
+    "z": "a17e0000000000a1",
+    "x": 370,
+    "y": 520,
+    "wires": [
+      []
+    ],
+    "name": "Create tables",
+    "mydb": "50a196d0c453da90",
+    "sqlquery": "batch",
+    "sql": ""
   }
 ]

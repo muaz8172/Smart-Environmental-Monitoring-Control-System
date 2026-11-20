@@ -70,13 +70,6 @@ def test_events_on_flip():
     assert b.step({**N, "temperature": 38})["events"] == []
 
 
-def test_log_events(tmp_path):
-    import sqlite3
-    db = tmp_path / "t.db"
-    ai.log_events(str(db), [("DECISION", "x")])
-    assert sqlite3.connect(db).execute("select Type, Message, Timestamp is not null from AI_Events").fetchone() == ("DECISION", "x", 1)
-
-
 def test_forecast_needs_10_readings():
     assert ai.forecast(rows("dust", 35, 1, 9), "dust", 55) is None and ai.forecast(rows("dust", 35, 1, 10), "dust", 55) is not None
 

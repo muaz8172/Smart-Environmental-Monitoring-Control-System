@@ -135,17 +135,75 @@ The system moves from *monitoring* to *autonomous control*:
 ```
 Proteus Arduino ⇄ COM2 ⇄ serial_mqtt_bridge ⇄ Mosquitto ⇄ ai_brain
                                               ⇅
-                       Node-RED http://localhost:1880/ir7  (+ SQLite AI_Events)
+                       Node-RED http://localhost:1880/ir7  (+ SQLite Sensor_data, AI_Events)
 ```
 
 **Firmware safety (IEC 60730-1 Annex H / IEC 61508-3 principles):** 8 s hardware watchdog, I2C timeout, sensor plausibility checks (DHT11 `nan`, missing or implausible BMP180, no ultrasonic echo). On a sensor fault the LCD shows **SENSOR FAULT**, the red LED and buzzer turn on, the fan goes to its safe state (OFF), and the faulty value is sent as `nan` so the dashboard never shows it as live. If the PC stops sending commands for 10 s the Arduino returns to its local rules.
 
 **Files:** `Arduino/smart_env_firmware/smart_env_firmware.ino`, `Python/serial_mqtt_bridge.py`, `Python/ai_brain.py`, `Python/serial_link_check.py`, `Node-RED/IR7_HTML_Dashboard.json` (built from `ir7_dashboard.html` by `build_ir7_flow.py`)
 
+**Physical build (real Arduino Uno + L298N):** see [`Physical_Build/README.md`](Physical_Build/README.md) for wiring, firmware upload and the `start_demo.bat` launcher.
+
 **Setup (once)**
 1. Proteus: COMPIM **TXD → Arduino TX** (data out) and **RXD → Arduino RX / D0** (commands in). Load `Arduino/smart_env_firmware/build/smart_env_firmware.ino.hex`. Check the link with `python serial_link_check.py` (it must say OK).
-2. Node-RED: Ctrl+I → select `Node-RED/IR7_HTML_Dashboard.json` → Import → Deploy. It reuses your existing *Mosquitto* broker and *Sensor_database* SQLite config nodes.
-3. Optional fix in the System V1 "Sql Insert" node: `let fan = Number(data.fan_state) === 1 ? "ON" : "OFF";`
+2. Database (once): stop Node-RED, then `python Python/relational_db.py`. It backs up `Database/Sensor_database.db` and converts it to the relational schema in `Database/schema.sql`, keeping all old readings and events.
+3. Node-RED: delete (or disable) the old *System V1* and *IR 7.0 Dashboard* tabs, then Ctrl+I → select `Node-RED/Smart_Env_SQLite_Flows.json` → Import (as new) → Deploy. It adds *System V1 (SQLite)* and *IR 7.0 Dashboard* and uses your existing *Sensor_database* SQLite config node (`Database/Sensor_database.db`); the schema is applied on start, with foreign keys switched on. All database writes go through the Node-RED SQLite nodes: sensor readings from `muaz/iot/mfi`, AI events from `muaz/iot/mfi/events`.
+
+**Relational database (SQLite, 3NF)**: `Database/schema.sql`
+
+```mermaid
+erDiagram
+    Device ||--|{ Sensor : "has"
+    Sensor ||--o| Alarm_Limit : "has"
+    Reading ||--|{ Reading_Value : "contains"
+    Sensor ||--o{ Reading_Value : "measures"
+    Event_Type ||--o{ AI_Events : "classifies"
+    Sensor |o--o{ AI_Events : "about"
+    Device {
+        int Device_ID PK
+        text Model
+        text Interface
+        text Pins
+    }
+    Sensor {
+        int Sensor_ID PK
+        int Device_ID FK
+        text Name
+        text Unit
+    }
+    Alarm_Limit {
+        int Sensor_ID PK, FK
+        real Low_Alarm
+        real Low_Warning
+        real High_Warning
+        real High_Alarm
+        real Deadband
+    }
+    Reading {
+        int Reading_ID PK
+        text Timestamp
+        text Fan_Status
+        text Mode
+    }
+    Reading_Value {
+        int Reading_ID PK, FK
+        int Sensor_ID PK, FK
+        real Value
+    }
+    Event_Type {
+        text Type PK
+        text Description
+    }
+    AI_Events {
+        int ID PK
+        text Timestamp
+        text Type FK
+        int Sensor_ID FK
+        text Message
+    }
+```
+
+The view `Sensor_data` joins Reading and Reading_Value back into one row per reading (Temperature … Distance, Fan_Status, Mode), so the dashboards read it like the old table. Node-RED inserts into that view, and its `INSTEAD OF INSERT` trigger splits each reading into Reading + Reading_Value rows. Example query: `SELECT s.Name, d.Model, AVG(v.Value) FROM Reading_Value v JOIN Sensor s USING (Sensor_ID) JOIN Device d USING (Device_ID) GROUP BY s.Name;`
 
 **Run order:** Mosquitto → Node-RED → Proteus → `python serial_mqtt_bridge.py` (or `--simulate` without Proteus) → `python ai_brain.py` → open `http://localhost:1880/ir7` (add `?demo` to rehearse with fake data). Everything runs offline.
 

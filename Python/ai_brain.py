@@ -7,12 +7,10 @@ IR 7.0 AI brain (predict, decide, explain, override, energy)
 Usage  : python ai_brain.py [--broker localhost] [--topic muaz/iot/mfi]
 """
 
-import argparse, json, logging, sqlite3, time
-from pathlib import Path
+import argparse, json, logging, time
 import paho.mqtt.client as mqtt
 
 log = logging.getLogger("ai-brain")
-DB = Path(__file__).resolve().parent.parent / "Database" / "Sensor_database.db"
 
 # key: (low, high, scale) comfort band; None = no limit on that side
 BANDS = {"temperature": (None, 37, 5), "humidity": (30, 60, 10), "dust": (None, 55, 20),
@@ -189,19 +187,6 @@ class Brain:
                            "saved_wh": round(saved, 3), "co2_g": round(saved * GRID_KG_PER_KWH, 2)}}
 
 
-def log_events(db_path, events):
-    if not events:
-        return
-    try:
-        with sqlite3.connect(db_path) as c:
-            c.execute("CREATE TABLE IF NOT EXISTS AI_Events (ID INTEGER PRIMARY KEY AUTOINCREMENT, "
-                      "Timestamp TEXT DEFAULT (datetime('now','localtime')), Type TEXT, Message TEXT)")
-            c.executemany("INSERT INTO AI_Events (Type, Message) VALUES (?, ?)", events)
-        c.close()
-    except sqlite3.Error as e:
-        log.error("AI_Events log failed (%s)", e)
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--broker", default="localhost")
@@ -210,11 +195,11 @@ def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s",
                         datefmt="%d/%m/%Y %H:%M:%S")
     brain = Brain()
-    log_events(DB, [("SYSTEM", "AI Brain started")])  # also creates AI_Events for the dashboard
 
     def on_connect(c, *x):
         log.info("MQTT connected (%s)", x[2])
         c.subscribe([(a.topic, 0), (a.topic + "/override", 0)])
+        c.publish(a.topic + "/events", json.dumps([("SYSTEM", "AI Brain started")]))
 
     def on_message(c, u, m):
         try:
@@ -228,7 +213,8 @@ def main():
         events = out.pop("events")
         c.publish(a.topic + "/ai", json.dumps(out))
         c.publish(a.topic + "/cmd", brain.command())
-        log_events(DB, events)
+        if events:  # Node-RED stores these in MySQL (AI_Events)
+            c.publish(a.topic + "/events", json.dumps(events))
         log.info("%s | score %s | %s", brain.command(), out["score"], out["reason"])
 
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="python-ai-brain")

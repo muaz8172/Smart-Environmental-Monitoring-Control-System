@@ -12,6 +12,7 @@ from pathlib import Path
 HERE = Path(__file__).parent
 BROKER = "fd80b27dfc9a2898"  # existing "Mosquitto" broker config node (localhost:1883)
 DB = "50a196d0c453da90"      # existing sqlitedb config node -> Database/Sensor_database.db
+TABLES = (HERE.parent / "Database" / "schema.sql").read_text(encoding="utf-8")  # relational schema, run on start
 TAB, WSL = "a17e0000000000a1", "a17e0000000000a2"
 
 
@@ -27,6 +28,12 @@ def build():
     guard = ("const p = String(msg.payload).trim().toUpperCase();\n"
              "if (!['AUTO', 'ON', 'OFF'].includes(p) && !/^ACK:(TEMPERATURE|HUMIDITY|PRESSURE|DUST|LIGHT)$/.test(p)) return null;\n"
              "msg.payload = p;\nreturn msg;")
+    save = ("const ev = typeof msg.payload === 'string' ? JSON.parse(msg.payload) : msg.payload;\n"
+            "if (!Array.isArray(ev)) return null;\n"
+            "const tag = m => (String(m).match(/temperature|humidity|pressure|dust|light|distance/i) || [''])[0];\n"
+            "return [ev.map(e => ({topic: 'INSERT INTO AI_Events (Type, Sensor_ID, Message) VALUES ($type, ' +\n"
+            "    '(SELECT Sensor_ID FROM Sensor WHERE Name = $sensor COLLATE NOCASE), $msg)',\n"
+            "    payload: [String(e[0]).slice(0, 16), tag(e[1]), String(e[1]).slice(0, 255)]}))];")
     return [
         {"id": TAB, "type": "tab", "label": "IR 7.0 Dashboard", "disabled": False,
          "info": "Muhammad Muaz Bin Md Fazli, UniKL MFI - open http://localhost:1880/ir7"},
@@ -51,6 +58,13 @@ def build():
         node(12, "sqlite", 370, 360, [13], name="AI_Events", mydb=DB, sqlquery="fixed",
              sql="SELECT * FROM AI_Events ORDER BY ID DESC LIMIT 100;"),
         node(13, "http response", 580, 360, None, name="", statusCode="", headers={}),
+        node(15, "mqtt in", 150, 440, [16], name="AI events", topic="muaz/iot/mfi/events", qos="0",
+             datatype="auto-detect", broker=BROKER, nl=False, rap=True, rh=0, inputs=0),
+        node(16, "function", 370, 440, [17], name="Insert AI_Events", func=save, outputs=1),
+        node(17, "sqlite", 580, 440, [], name="Save AI_Events", mydb=DB, sqlquery="msg.topic", sql=""),
+        node(18, "inject", 150, 520, [19], name="On start", props=[{"p": "topic", "vt": "str"}], repeat="",
+             crontab="", once=True, onceDelay="0.5", topic=TABLES),
+        node(19, "sqlite", 370, 520, [], name="Create tables", mydb=DB, sqlquery="batch", sql=""),
     ]
 
 

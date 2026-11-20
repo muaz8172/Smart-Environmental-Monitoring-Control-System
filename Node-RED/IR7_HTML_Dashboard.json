@@ -1,0 +1,219 @@
+[
+  {
+    "id": "a17e0000000000a1",
+    "type": "tab",
+    "label": "IR 7.0 Dashboard",
+    "disabled": false,
+    "info": "Muhammad Muaz Bin Md Fazli, UniKL MFI - open http://localhost:1880/ir7"
+  },
+  {
+    "id": "a17e0000000000a2",
+    "type": "websocket-listener",
+    "path": "/ws/ir7",
+    "wholemsg": "false"
+  },
+  {
+    "id": "a17e000000000001",
+    "type": "http in",
+    "z": "a17e0000000000a1",
+    "x": 140,
+    "y": 60,
+    "wires": [
+      [
+        "a17e000000000002"
+      ]
+    ],
+    "name": "GET /ir7",
+    "url": "/ir7",
+    "method": "get",
+    "upload": false,
+    "swaggerDoc": ""
+  },
+  {
+    "id": "a17e000000000002",
+    "type": "template",
+    "z": "a17e0000000000a1",
+    "x": 340,
+    "y": 60,
+    "wires": [
+      [
+        "a17e000000000003"
+      ]
+    ],
+    "name": "IR 7.0 page",
+    "field": "payload",
+    "fieldType": "msg",
+    "format": "html",
+    "syntax": "plain",
+    "template": "<!DOCTYPE html>\n<!-- Muhammad Muaz Bin Md Fazli, UniKL MFI, topic: Smart Environmental & Monitoring System -->\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>Dashboard Monitoring System</title>\n<style>\n/* ISA-101 / IEC 63303: normal = grey; colour only for abnormal states (IEC 60073: yellow warning, red alarm) */\n:root{--bg:#F4F5F7;--card:#FFFFFF;--soft:#F5F6F8;--line:#E3E6EA;--ink:#1F2933;--mute:#5F6B76;--ctl:#2F3A45;--ico:#46525E;--track:#E2E5E8;\n--iec-g:#1E8E3E;--normal:#6B7580;--iec-y:#F2B705;--iec-r:#D32F2F;--ok-t:#1B7A35;--warn-t:#8A5A00;--alarm-t:#C62828;--warn-bg:#FEF6DA;--alarm-bg:#FDECEC;color-scheme:light}\n*{box-sizing:border-box;margin:0}[hidden]{display:none!important}\nhtml,body{height:100%;overflow:hidden}\nbody{background:var(--bg);color:var(--ink);font:14px/1.5 \"Segoe UI Variable Text\",\"Segoe UI Variable Display\",\"Segoe UI\",system-ui,-apple-system,\"Helvetica Neue\",sans-serif;\nfont-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}\n#bg{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;\n-webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 45%,rgba(0,0,0,.5),#000);mask-image:radial-gradient(ellipse 70% 60% at 50% 45%,rgba(0,0,0,.5),#000)}\n.app{position:relative;z-index:1;height:100vh;display:grid;grid-template-rows:auto 1fr;gap:14px;padding:16px 20px;max-width:1500px;margin:0 auto}\n.num{font-family:\"Segoe UI Variable Display\",\"Segoe UI\",system-ui,sans-serif;font-weight:600;letter-spacing:-.02em;font-variant-numeric:proportional-nums}\nheader{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px}\n.brand{display:flex;gap:12px;align-items:center}\nh1{font:600 19px/1.2 \"Segoe UI Variable Display\",\"Segoe UI\",system-ui,sans-serif;letter-spacing:-.02em}\n.sub{color:var(--mute);font-size:13px}\n.ico{width:34px;height:34px;border-radius:10px;background:var(--soft);border:1px solid var(--line);display:grid;place-items:center;flex:none}\n.ico svg{width:18px;height:18px;fill:none;stroke:var(--ico);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}\n.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--mute);white-space:nowrap}\n.chip::before{content:\"\";width:7px;height:7px;border-radius:50%;background:currentColor}\n.chip.plain::before{display:none}\n.chip.y{background:var(--warn-bg);border-color:#F3DC8C;color:var(--warn-t)}.chip.r{background:var(--alarm-bg);border-color:#F4BDBD;color:var(--alarm-t)}\n.right{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}\n.hal{min-height:0;font:600 12px \"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif;padding:4px 11px;cursor:pointer}.hal:hover{filter:brightness(.96)}\n.hal.unack::before{animation:flash 1s steps(2,jump-none) infinite}\n.seg{display:inline-flex;padding:4px;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px}\nbutton{font:600 13px \"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif;min-height:32px;padding:6px 16px;border-radius:9px;border:0;background:transparent;color:var(--mute);cursor:pointer;transition:background .2s,color .2s}\nbutton:hover:not(:disabled){color:var(--ink)}button.on{background:var(--ctl);color:#fff}\nbutton:disabled{opacity:.35;cursor:default}\nbutton:focus-visible{outline:2px solid var(--ctl);outline-offset:2px}\n.view{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;min-height:0}\n#v-mon{grid-template-rows:1.05fr .9fr 1.2fr}\n#v-graph{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:1fr 1fr}\n.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;min-height:0;overflow:hidden;display:flex;flex-direction:column}\n.k{color:var(--mute);font-size:13px;font-weight:600}\n.head{display:flex;justify-content:space-between;align-items:center;gap:8px}\n.row{display:flex;gap:8px;align-items:center}\n.c2{grid-column:span 2}.c3{grid-column:span 3}.c4{grid-column:span 4}.c5{grid-column:span 5}.c8{grid-column:span 8}\n.brain{display:flex;gap:20px;align-items:center;flex:1;min-height:0}\n.ring{height:min(100%,128px);aspect-ratio:1;flex:none}\n.status{font:600 clamp(22px,3.4vh,32px)/1.15 \"Segoe UI Variable Display\",\"Segoe UI\",system-ui,sans-serif;letter-spacing:-.02em;margin-bottom:12px}\n.big{font-size:clamp(24px,3.6vh,34px);line-height:1.1;margin-top:auto}\n.meta{color:var(--mute);font-size:13px;margin-top:4px}\n.stat{display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--line);font-size:13px}.stat b{font-weight:600}\n.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;min-height:0}\n.disc{width:clamp(40px,7.5vh,58px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:var(--soft);border:1px solid var(--line)}\n.disc svg{width:58%;height:58%;fill:none;stroke:var(--ico);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}\n.cv{font-size:clamp(22px,3.4vh,30px);line-height:1.1}\n.tiles{grid-column:span 12;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;min-height:0}\n.lvl{display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 6px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--ico);background:var(--soft);border:1px solid var(--line);white-space:nowrap}\n.lvl svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}\n.lvl.warn{color:var(--warn-t);background:var(--warn-bg)}.lvl.bad{color:var(--alarm-t);background:var(--alarm-bg)}.lvl.sup{color:var(--mute);background:transparent;border-style:dashed}\n.lvl.warn,.lvl.bad{border-color:transparent}\n.lvl.stale{color:var(--warn-t);background:var(--warn-bg);border-color:transparent}\nbody.stale .tiles .v,body.stale .meter,body.stale .cv,body.stale .center .meta,body.stale #v-graph .plot,body.stale #v-graph .v{opacity:.4;transition:opacity .3s}\n.meter.yw .track i{box-shadow:inset 0 0 0 1.5px #7A5000}\n.v{font-size:clamp(20px,3vh,26px);line-height:1.1}.v small{font-size:13px;font-weight:500;color:var(--mute);margin-left:4px;letter-spacing:0}\n.meter{margin-top:auto;padding-top:10px;--m:var(--normal)}\n.track{position:relative;height:9px;border-radius:999px;background:var(--track)}\n.track i{position:absolute;inset:0 auto 0 0;width:0;border-radius:999px;background:var(--m);box-shadow:inset 0 0 0 1px rgba(0,0,0,.28);transition:width .6s cubic-bezier(.16,1,.3,1)}\n.track b{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;border-radius:2px;background:var(--ink)}\n.scale{position:relative;height:17px;margin-top:5px;font-size:12px;color:var(--mute)}\n.scale span{position:absolute;top:0;white-space:nowrap}.scale .mid{transform:translateX(-50%);color:var(--ink);font-weight:600}\n.list{flex:1;min-height:0;overflow:hidden;margin-top:8px;display:flex;flex-direction:column}\n.al{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:6px 8px;border-top:1px solid var(--line);font-size:13px}\n.al:first-child{border-top:0}\n.al .t{color:var(--mute);font-size:12.5px}\n.al>span:nth-child(2){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.pri{font-size:11.5px;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:6px;color:#fff;background:var(--iec-r)}\n.pri.w{background:var(--iec-y);color:#1F2933}.pri.a{background:var(--soft);color:var(--mute);border:1px solid var(--line)}\n.al.unack{background:linear-gradient(90deg,rgba(211,47,47,.07),transparent 60%);border-left:3px solid var(--iec-r)}\n.al.unack.w{background:linear-gradient(90deg,rgba(242,183,5,.12),transparent 60%);border-left-color:var(--iec-y)}\n.al.unack:not(.rtn) .pri{animation:flash 1s steps(2,jump-none) infinite}\n.al.rtn{color:var(--mute);background:none;border-left:3px solid var(--line)}\n@keyframes flash{50%{opacity:.35}}\n.ack{min-height:32px;padding:3px 12px;border:1px solid var(--ctl);color:var(--ctl);background:var(--card)}.ack:hover:not(:disabled){background:var(--ctl);color:#fff}\n.done{font-size:12.5px;color:var(--mute)}\n.tbl{flex:1;min-height:0;margin-top:6px;overflow:hidden}\ntable{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}td{height:35px;padding:0 8px;border-top:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\ntd:first-child{color:var(--mute);width:150px}td:nth-child(2){width:112px}\n.ev{font-size:11.5px;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:6px;background:var(--soft);color:var(--mute);border:1px solid var(--line)}\n.ev.ALARM{background:var(--iec-r);color:#fff;border-color:var(--iec-r)}.ev.WARNING,.ev.ANOMALY{background:var(--iec-y);color:#1F2933;border-color:var(--iec-y)}\n.pager{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--mute)}.pager button{padding:4px 12px;border:1px solid var(--line);background:var(--card)}\n.plot{position:relative;flex:1;min-height:0;margin:8px 0 0 34px}\n.plot svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}\n.ax{position:absolute;left:-34px;width:30px;text-align:right;font-size:12px;color:var(--mute);transform:translateY(-50%)}\n.lim{position:absolute;right:2px;font-size:12px;font-weight:600;color:var(--ink);background:var(--card);padding:0 4px;transform:translateY(-50%)}\n.time{display:flex;justify-content:space-between;margin:4px 0 0 34px;font-size:12px;color:var(--mute)}\n.empty{color:var(--mute);font-size:13px}\n@media (prefers-reduced-motion:reduce){.al.unack:not(.rtn) .pri{animation:none;outline:2px solid currentColor}.track i{transition:none}}\n@media (max-width:900px){html,body{overflow:auto;height:auto}.app{height:auto}header{grid-template-columns:1fr;justify-items:start}.right{justify-content:flex-start}\n.view,#v-graph{grid-template-columns:1fr;grid-template-rows:none}.c2,.c3,.c4,.c5,.c8,.tiles{grid-column:auto}.tiles{grid-template-columns:repeat(2,1fr)}\n.card{min-height:160px}.tbl,.list{min-height:220px}}\n</style>\n</head>\n<body>\n<canvas id=\"bg\" aria-hidden=\"true\"></canvas>\n<div class=\"app\">\n<header>\n  <div class=\"brand\">\n    <div class=\"ico\" style=\"width:40px;height:40px\"><svg viewBox=\"0 0 24 24\"><path d=\"M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10Z\"/><path d=\"M2 21c0-3 1.9-5.4 5.1-6\"/></svg></div>\n    <div><h1>Dashboard Monitoring System</h1><div class=\"sub\">Live room sensing and fan control</div></div>\n  </div>\n  <div class=\"seg\" role=\"tablist\"><button data-tab=\"mon\" class=\"on\">Monitoring</button><button data-tab=\"graph\">Graphs</button></div>\n  <div class=\"right\"><button id=\"hal\" class=\"chip hal\" hidden aria-label=\"Go to active alarms\"></button><span id=\"mode\" class=\"chip\">Waiting</span><span id=\"conn\" class=\"chip r\">Offline</span><span id=\"clk\" class=\"chip plain\">--:--:--</span></div>\n</header>\n\n<main id=\"v-mon\" class=\"view\">\n  <section class=\"card c5\">\n    <div class=\"head\"><div class=\"row\"><div class=\"ico\"><svg viewBox=\"0 0 24 24\"><path d=\"M12 3a6 6 0 0 0-6 6c0 2.4 1.3 3.8 2.3 4.9.6.7 1.2 1.4 1.2 2.1v1h5v-1c0-.7.6-1.4 1.2-2.1 1-1.1 2.3-2.5 2.3-4.9a6 6 0 0 0-6-6Z\"/><path d=\"M10 20h4\"/></svg></div><div class=\"k\">AI decision</div></div>\n      <span id=\"would\" class=\"chip plain\" hidden></span></div>\n    <div class=\"brain\">\n      <svg class=\"ring\" viewBox=\"0 0 136 136\" aria-label=\"Health score\">\n        <circle cx=\"68\" cy=\"68\" r=\"58\" fill=\"none\" stroke=\"#EEF0F2\" stroke-width=\"11\"/>\n        <circle id=\"arc\" cx=\"68\" cy=\"68\" r=\"58\" fill=\"none\" stroke=\"#8E98A2\" stroke-width=\"11\" stroke-linecap=\"round\"\n                stroke-dasharray=\"364.4\" stroke-dashoffset=\"364.4\" transform=\"rotate(-90 68 68)\" style=\"transition:stroke-dashoffset .6s\"/>\n        <text x=\"68\" y=\"76\" text-anchor=\"middle\" id=\"score\" class=\"num\" style=\"font-size:38px;fill:var(--ink)\">--</text>\n        <text x=\"68\" y=\"98\" text-anchor=\"middle\" style=\"fill:var(--mute);font-size:12px\">Health</text>\n      </svg>\n      <div style=\"min-width:0\">\n        <div id=\"status\" class=\"status\">Waiting&hellip;</div>\n        <div class=\"seg\"><button data-o=\"AUTO\" class=\"on\">Auto (AI)</button><button data-o=\"ON\">Fan on</button><button data-o=\"OFF\">Fan off</button></div>\n      </div>\n    </div>\n  </section>\n\n  <section class=\"card c2\">\n    <div class=\"head\"><div class=\"row\"><div class=\"ico\"><svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"2\"/><path d=\"M12 10c0-3 .5-6 3-6s2 4-3 6M14 12c3 0 6 .5 6 3s-4 2-6-3M12 14c0 3-.5 6-3 6s-2-4 3-6M10 12c-3 0-6-.5-6-3s4-2 6 3\"/></svg></div><div class=\"k\">Fan</div></div></div>\n    <div class=\"center\">\n      <div class=\"disc\"><svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"2\"/><path d=\"M12 10c0-3 .5-6 3-6s2 4-3 6M14 12c3 0 6 .5 6 3s-4 2-6-3M12 14c0 3-.5 6-3 6s-2-4 3-6M10 12c-3 0-6-.5-6-3s4-2 6 3\"/></svg></div>\n      <div id=\"fan\" class=\"num cv\">--</div>\n      <div class=\"meta\" id=\"fan-by\">--</div>\n    </div>\n  </section>\n\n  <section class=\"card c2\">\n    <div class=\"head\"><div class=\"row\"><div class=\"ico\"><svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"7\" r=\"3\"/><path d=\"M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M2 12h3M19 12h3\"/></svg></div><div class=\"k\">Occupancy</div></div></div>\n    <div class=\"center\">\n      <div class=\"disc\"><svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"7\" r=\"3\"/><path d=\"M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2\"/></svg></div>\n      <div id=\"occ\" class=\"num cv\">--</div>\n      <div class=\"meta\"><span id=\"dist\">--</span> cm away &middot; <span id=\"since\">--</span></div>\n    </div>\n  </section>\n\n  <section class=\"card c3\">\n    <div class=\"head\"><div class=\"row\"><div class=\"ico\"><svg viewBox=\"0 0 24 24\"><path d=\"M13 2 4 14h7l-1 8 9-12h-7l1-8Z\"/></svg></div><div class=\"k\">Energy</div></div></div>\n    <div class=\"num big\" id=\"saved\" style=\"margin-top:auto\">0.000<small style=\"font-size:13px;color:var(--mute);font-weight:500\"> Wh saved</small></div>\n    <div style=\"margin-top:8px\">\n      <div class=\"stat\"><span>AI fan</span><b id=\"aiwh\">0.000 Wh</b></div>\n      <div class=\"stat\"><span>Old rule</span><b id=\"oldwh\">0.000 Wh</b></div>\n      <div class=\"stat\"><span>CO&#8322; avoided</span><b id=\"co2\">0.00 g</b></div>\n    </div>\n  </section>\n\n  <div class=\"tiles\" id=\"tiles\"></div>\n\n  <section class=\"card c4\">\n    <div class=\"head\"><div class=\"row\"><div class=\"ico\"><svg viewBox=\"0 0 24 24\"><path d=\"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9\"/><path d=\"M10.3 21a1.9 1.9 0 0 0 3.4 0\"/></svg></div><div class=\"k\">Active alarms</div></div><span id=\"acount\" class=\"chip plain\">0 active</span></div>\n    <div class=\"list\" id=\"alarms\"><div class=\"empty\">No active alarms</div></div>\n  </section>\n\n  <section class=\"card c8\">\n    <div class=\"head\"><div class=\"row\"><div class=\"ico\"><svg viewBox=\"0 0 24 24\"><path d=\"M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01\"/></svg></div><div class=\"k\">Event log</div></div>\n      <div class=\"pager\"><button id=\"prev\" aria-label=\"Previous page\">&#9664; Prev</button><span id=\"pinfo\">0 of 0</span><button id=\"next\" aria-label=\"Next page\">Next &#9654;</button></div></div>\n    <div class=\"tbl\" id=\"tbl\"><table><tbody id=\"events\"><tr><td colspan=\"3\" class=\"empty\">No events yet</td></tr></tbody></table></div>\n  </section>\n</main>\n\n<main id=\"v-graph\" class=\"view\" hidden></main>\n</div>\n\n<script>\nconst $ = id => document.getElementById(id);\nconst I = {\n  temperature: '<path d=\"M14 14.8V4.5a2.5 2.5 0 0 0-5 0v10.3a4.5 4.5 0 1 0 5 0Z\"/><path d=\"M11.5 10v7\"/>',\n  humidity: '<path d=\"M12 2.7 17.7 8.3a8 8 0 1 1-11.3 0Z\"/>',\n  pressure: '<circle cx=\"12\" cy=\"13\" r=\"8\"/><path d=\"m12 13 3.5-3.5M12 5v1.5M4 13h1.5M18.5 13H20\"/>',\n  dust: '<path d=\"M9.6 4.6A2 2 0 1 1 11 8H2M12.6 19.4A2 2 0 1 0 14 16H2M17.7 7.7A2.5 2.5 0 1 1 19.5 12H2\"/>',\n  light: '<circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4\"/>',\n  distance: '<circle cx=\"12\" cy=\"7\" r=\"3\"/><path d=\"M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M2 12h3M19 12h3\"/>'};\n// name, unit, scale min, scale max, min chart span\nconst M = {temperature: [\"Temperature\", \"\u00b0C\", 20, 45, 3], humidity: [\"Humidity\", \"%\", 0, 100, 8], pressure: [\"Pressure\", \"hPa\", 960, 1080, 8],\n  dust: [\"Dust\", \"index\", 0, 100, 15], light: [\"Light\", \"ADC\", 0, 1023, 150], distance: [\"Distance\", \"cm\", 0, 200, 60]};\n// alarm limits (same table as ai_brain.py / README): low alarm, low warning, high warning, high alarm, deadband\nconst LIM = {temperature: [null, null, 35, 37, .5], humidity: [30, 35, 55, 60, 1], pressure: [980, 985, 1045, 1050, 1],\n  dust: [null, null, 50, 55, 2], light: [500, 550, null, null, 10]};\nconst LV = ['<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m8.5 12.5 2.5 2.5 4.5-5\"/>', '<path d=\"M12 4 2.8 19.5h18.4Z\"/><path d=\"M12 10v4M12 17h.01\"/>',\n            '<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7.5v5M12 16h.01\"/>', '<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8 12h8\"/>'];\nconst COMFORT = [\"temperature\", \"humidity\", \"dust\", \"light\"], SUP = {}, CLK = '<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>';\nconst HIST = {}, NG = 60, AL = {};\nlet ws, lastAi = 0, lastSensor = 0, sensorMode = \"LOCAL\", ai = null, occState = null, occSince = Date.now(), EV = [], page = 0, ADV = [];\n\nconst svg = k => `<svg viewBox=\"0 0 24 24\">${I[k]}</svg>`;\nconst pct = (k, v) => Math.max(0, Math.min(100, (v - M[k][2]) / (M[k][3] - M[k][2]) * 100));\nconst lims = k => [LIM[k][0], LIM[k][3]].filter(t => t !== null);\nconst clock = t => new Date(t).toLocaleTimeString(\"en-GB\");\nfunction setTag(el, text, cls) { el.textContent = text; el.className = \"chip \" + (cls || \"\"); el.hidden = false; }\nfunction aiAlive() { return Date.now() - lastAi < 10000; }\nfunction level(k, v, prev) {\n  const [la, lw, hw, ha, db] = LIM[k], past = (th, high, l) => th !== null && (high ? v >= th - (prev >= l ? db : 0) : v <= th + (prev >= l ? db : 0));\n  return past(ha, true, 2) || past(la, false, 2) ? 2 : past(hw, true, 1) || past(lw, false, 1) ? 1 : 0;\n}\nfunction sideOf(k, v) { const [la, , , ha] = LIM[k]; return la === null ? \"High\" : ha === null ? \"Low\" : v >= (la + ha) / 2 ? \"High\" : \"Low\"; }\n\n// sensor tiles (Monitoring) and charts (Graphs)\nconst ends = k => { const m = lims(k).map(t => pct(k, t));\n  return (m.some(x => x < 19) ? \"\" : `<span style=\"left:0\">${M[k][2]}</span>`) + (m.some(x => x > 81) ? \"\" : `<span style=\"right:0\">${M[k][3]}</span>`); };\nObject.keys(LIM).forEach(k => $(\"tiles\").insertAdjacentHTML(\"beforeend\",\n  `<section class=\"card\"><div class=\"head\"><div class=\"row\"><div class=\"ico\">${svg(k)}</div><div class=\"k\">${M[k][0]}</div></div><span id=\"s-${k}\" class=\"lvl\">--</span></div>\n   <div class=\"v num\" style=\"margin-top:8px\"><span id=\"${k}\">--</span><small>${M[k][1]}</small></div>\n   <div class=\"meter\" id=\"m-${k}\"><div class=\"track\"><i id=\"f-${k}\"></i>${lims(k).map(t => `<b style=\"left:${pct(k, t)}%\"></b>`).join(\"\")}</div>\n   <div class=\"scale\">${ends(k)}${lims(k).map(t => `<span class=\"mid\" style=\"left:${pct(k, t)}%\">${t}</span>`).join(\"\")}</div></div></section>`));\nObject.keys(M).forEach(k => $(\"v-graph\").insertAdjacentHTML(\"beforeend\",\n  `<section class=\"card\"><div class=\"head\"><div class=\"row\"><div class=\"ico\">${svg(k)}</div><div class=\"k\">${M[k][0]} (${M[k][1]})</div></div>\n   <div class=\"v num\"><span id=\"g-${k}\">--</span></div></div>\n   <div class=\"plot\" id=\"pl-${k}\"><svg id=\"c-${k}\" viewBox=\"0 0 300 100\" preserveAspectRatio=\"none\"></svg></div>\n   <div class=\"time\"><span>&minus;2 min</span><span>now</span></div></section>`));\n\nfunction plot(k) {\n  const a = HIST[k]; if (!a || !a.length) return;\n  const lines = k === \"distance\" ? [100] : lims(k);\n  let lo = Math.min(...a, ...lines), hi = Math.max(...a, ...lines);\n  const pad = Math.max(0, M[k][4] - (hi - lo)) / 2 + (hi - lo) * .08; lo -= pad; hi += pad;\n  const Y = v => 96 - (v - lo) / (hi - lo) * 92, pts = a.map((v, i) => `${(a.length < 2 ? 300 : i * 300 / (a.length - 1)).toFixed(1)},${Y(v).toFixed(1)}`).join(\" \");\n  const st = AL[k] && !AL[k].rtn ? AL[k].lvl : 0, c = [\"var(--ico)\", \"var(--iec-y)\", \"var(--iec-r)\"][st];  // suppressed tags have no AL entry -> grey\n  const lc = k === \"distance\" ? \"var(--mute)\" : \"var(--alarm-t)\";  // distance 100 cm is the occupancy threshold, not an alarm\n  $(\"c-\" + k).innerHTML = lines.map(t => `<line x1=\"0\" x2=\"300\" y1=\"${Y(t)}\" y2=\"${Y(t)}\" stroke=\"${lc}\" stroke-dasharray=\"5 5\" opacity=\".8\" vector-effect=\"non-scaling-stroke\"/>`).join(\"\") +\n    `<polyline points=\"${pts}\" fill=\"none\" stroke=\"${c}\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" vector-effect=\"non-scaling-stroke\"/>`;\n  const f = n => Math.abs(n) >= 100 ? Math.round(n) : n.toFixed(1), pl = $(\"pl-\" + k);\n  pl.querySelectorAll(\".ax,.lim\").forEach(e => e.remove());\n  pl.insertAdjacentHTML(\"beforeend\", `<span class=\"ax\" style=\"top:4%\">${f(hi)}</span><span class=\"ax\" style=\"top:96%\">${f(lo)}</span>` +\n    lines.map(t => `<span class=\"lim\" style=\"top:${Y(t)}%\">${t}</span>`).join(\"\"));\n}\n\nfunction limOf(k, lvl, side) { const L = LIM[k]; return lvl === 2 ? (side === \"high\" ? L[3] : L[0]) : (side === \"high\" ? L[2] : L[1]); }\nfunction meter(k, v) {\n  const prev = AL[k] && !AL[k].rtn ? AL[k].lvl : 0, raw = level(k, v, prev), side = sideOf(k, v).toLowerCase();\n  const sup = raw > 0 && occState === false && COMFORT.includes(k), lvl = sup ? 0 : raw;  // IEC 62682 state-based suppression\n  const txt = sup ? \"Suppressed\" : [\"Optimal\", \"Warning\", \"Alarm\"][lvl], el = $(\"s-\" + k);\n  $(k).textContent = v;\n  if (el.dataset.t !== txt) { el.dataset.t = txt; el.innerHTML = `<svg viewBox=\"0 0 24 24\">${LV[sup ? 3 : lvl]}</svg>${txt}`; el.className = \"lvl \" + (sup ? \"sup\" : [\"\", \"warn\", \"bad\"][lvl]); }\n  el.hidden = !sup && lvl === 0;  // ISA-101: no badge when normal\n  $(\"m-\" + k).style.setProperty(\"--m\", sup ? \"var(--track)\" : [\"var(--normal)\", \"var(--iec-y)\", \"var(--iec-r)\"][lvl]);\n  $(\"m-\" + k).classList.toggle(\"yw\", lvl === 1);\n  $(\"f-\" + k).style.width = Math.max(2, pct(k, v)) + \"%\";\n  $(\"m-\" + k).title = `${M[k][0]} ${v} ${M[k][1]}`;\n  if (sup) { SUP[k] = v; delete AL[k]; return; }\n  delete SUP[k];\n  // local alarm state, used only while the AI brain is offline (the brain owns acknowledgement)\n  const a = AL[k], lim = limOf(k, lvl, side);\n  if (lvl && (!a || a.rtn || lvl > a.lvl)) AL[k] = {lvl, side, v, lim, since: clock(Date.now()), ack: false};\n  else if (lvl && a) Object.assign(a, {lvl, side, v, lim});\n  else if (!lvl && a && !a.rtn) { if (a.ack) delete AL[k]; else Object.assign(a, {rtn: true, v}); }\n}\n\nconst fromAi = () => ai && aiAlive() && Array.isArray(ai.alarms);\nfunction alarmRows() {\n  if (fromAi()) return ai.alarms.map(a => ({k: a.tag, lvl: a.priority === \"HIGH\" ? 2 : 1, side: a.side, v: a.value, lim: a.limit, since: a.since, ack: a.ack, rtn: a.rtn}));\n  return Object.entries(AL).map(([k, a]) => ({k, ...a}));\n}\nfunction renderAlarms() {\n  const rows = alarmRows().sort((a, b) => (b.rtn ? 0 : b.lvl) - (a.rtn ? 0 : a.lvl) || a.ack - b.ack || String(b.since).localeCompare(String(a.since)));\n  const sup = fromAi() && Array.isArray(ai.suppressed) ? ai.suppressed : Object.keys(SUP), active = rows.filter(a => !a.rtn).length;\n  // header alarm chip: visible on every tab (IEC 62682 / ISA-101)\n  const nA = rows.filter(a => !a.rtn && a.lvl === 2).length, nW = rows.filter(a => !a.rtn && a.lvl === 1).length, pl = (n, w) => `${n} ${w}${n > 1 ? \"s\" : \"\"}`, h = $(\"hal\");\n  h.hidden = !(nA || nW);\n  if (nA || nW) { h.textContent = nA ? pl(nA, \"alarm\") + (nW ? \" \u00b7 \" + pl(nW, \"warning\") : \"\") : pl(nW, \"warning\"); h.className = \"chip hal \" + (nA ? \"r\" : \"y\") + (rows.some(a => !a.ack && !a.rtn) ? \" unack\" : \"\"); }\n  $(\"acount\").textContent = active + \" active\"; $(\"acount\").className = \"chip plain \" + (rows.some(a => !a.rtn && a.lvl === 2) ? \"r\" : active ? \"y\" : \"\");\n  const box = $(\"alarms\"); box.replaceChildren();\n  const row = (cls, pri, text, time) => { const d = document.createElement(\"div\"); d.className = \"al\" + cls;\n    d.innerHTML = `<span class=\"pri ${pri[0]}\">${pri[1]}</span><span></span><span class=\"t\"></span>`; d.children[1].textContent = text; d.children[2].textContent = time || \"\"; box.append(d); return d; };\n  rows.forEach(a => {\n    const d = row((a.rtn ? \" rtn\" : \"\") + (!a.ack ? \" unack\" : \"\") + (a.lvl === 1 ? \" w\" : \"\"), a.rtn ? [\"a\", \"CLEARED\"] : a.lvl === 2 ? [\"\", \"ALARM\"] : [\"w\", \"WARNING\"],\n      `${M[a.k][0]} ${a.v} ${M[a.k][1]} ${a.side === \"high\" ? \"\u2265\" : \"\u2264\"} ${a.lim}`, a.since);\n    if (a.ack) d.insertAdjacentHTML(\"beforeend\", '<span class=\"done\">Acked</span>');\n    else { const b = document.createElement(\"button\"); b.className = \"ack\"; b.textContent = \"Ack\"; b.onclick = () => ackAlarm(a.k); d.append(b); }\n  });\n  sup.forEach(k => row(\"\", [\"a\", \"SUPPRESSED\"], `${M[k][0]} out of range \u00b7 room empty`).append(document.createElement(\"span\")));\n  ADV.forEach(t => row(\"\", [\"a\", \"ADVISORY\"], t).append(document.createElement(\"span\")));\n  if (!box.children.length) box.innerHTML = '<div class=\"empty\">No active alarms</div>';\n}\nfunction ackAlarm(k) {\n  const a = AL[k]; if (a) { a.ack = true; if (a.rtn) delete AL[k]; }\n  if (ai && Array.isArray(ai.alarms)) ai.alarms = ai.alarms.filter(x => !(x.tag === k && x.rtn)).map(x => x.tag === k ? {...x, ack: true} : x);  // shown at once; the brain confirms within 2 s\n  send(\"ACK:\" + k.toUpperCase()); renderAlarms();\n}\n\nfunction onSensor(d) {\n  lastSensor = Date.now();\n  const occ = d.distance < 100;\n  if (occ !== occState) { occState = occ; occSince = Date.now(); }\n  Object.keys(M).forEach(k => {\n    HIST[k] = (HIST[k] || []).concat(+d[k]).slice(-NG);\n    if (LIM[k]) meter(k, +d[k]);\n    $(\"g-\" + k).textContent = d[k];\n    if (!$(\"v-graph\").hidden) plot(k);\n  });\n  renderAlarms();\n  $(\"occ\").textContent = occ ? \"Occupied\" : \"Empty\"; $(\"dist\").textContent = d.distance;\n  sensorMode = d.mode || \"LOCAL\";\n  if (!aiAlive()) setFan(!!d.fan_state, sensorMode === \"LOCAL\" ? \"Local rules\" : \"AI offline\");\n  tick();\n}\n\nfunction setFan(on, by) { $(\"fan\").textContent = on ? \"Running\" : \"Stopped\"; $(\"fan-by\").textContent = by; }\n\nfunction onAi(d) {\n  ai = d; lastAi = Date.now();\n  $(\"score\").textContent = d.score;\n  $(\"arc\").style.strokeDashoffset = 364.4 * (1 - d.score / 100);\n  setFan(d.fan === \"ON\", d.mode === \"HUMAN\" ? \"Manual override\" : \"AI control\");\n  d.mode === \"HUMAN\" ? setTag($(\"would\"), \"AI would turn fan \" + d.would.toLowerCase(), \"plain\") : ($(\"would\").hidden = true);\n  $(\"status\").textContent = d.status || \"All normal\"; $(\"status\").title = d.reason;\n  ADV = Object.entries(d.forecast).map(([k, m]) => `${M[k][0]} limit expected in ~${m} min`).concat(d.anomalies);\n  const e = d.energy;\n  $(\"saved\").firstChild.nodeValue = e.saved_wh.toFixed(3);\n  $(\"aiwh\").textContent = e.ai_wh.toFixed(3) + \" Wh\"; $(\"oldwh\").textContent = e.old_wh.toFixed(3) + \" Wh\";\n  $(\"co2\").textContent = e.co2_g.toFixed(2) + \" g\";\n  document.querySelectorAll(\"[data-o]\").forEach(b => b.classList.toggle(\"on\", d.mode === \"HUMAN\" ? b.dataset.o === d.fan : b.dataset.o === \"AUTO\"));\n  renderAlarms(); tick();\n}\n\nfunction tick() {\n  const up = aiAlive(), age = lastSensor ? Math.round((Date.now() - lastSensor) / 1000) : 0, stale = age > 6;  // 3 missed readings\n  document.body.classList.toggle(\"stale\", stale);\n  if (ai && !up) { $(\"status\").textContent = \"AI offline\"; $(\"status\").title = \"The Arduino is running its local rules.\"; $(\"would\").hidden = true; ADV = [];\n    $(\"fan-by\").textContent = sensorMode === \"LOCAL\" ? \"Local rules\" : \"AI offline\"; }\n  if (stale) {  // IEC 63303 data quality: never show old values as live\n    setTag($(\"mode\"), `No sensor data \u00b7 ${age} s`, \"y\"); $(\"fan-by\").textContent = \"Last known value\";\n    Object.keys(LIM).forEach(k => { const el = $(\"s-\" + k), t = `Stale \u00b7 ${age} s`; el.dataset.t = t; el.innerHTML = `<svg viewBox=\"0 0 24 24\">${CLK}</svg>${t}`; el.className = \"lvl stale\"; el.hidden = false; });\n  }\n  else if (sensorMode === \"LOCAL\") setTag($(\"mode\"), up ? \"Local control\" : \"Local control \u00b7 AI offline\", \"y\");\n  else if (ai && !up) setTag($(\"mode\"), \"AI offline\", \"y\");\n  else if (ai && ai.mode === \"HUMAN\") {  // manual mode is abnormal and time-limited\n    const left = ai.override_left_s == null ? null : Math.max(0, Math.round(ai.override_left_s - (Date.now() - lastAi) / 1000));\n    setTag($(\"mode\"), left == null ? \"Manual override\" : `Manual \u00b7 ${Math.floor(left / 60)}:${String(left % 60).padStart(2, \"0\")} left`, \"y\");\n  }\n  else setTag($(\"mode\"), \"AI control\");\n  const s = Math.round((Date.now() - occSince) / 1000);\n  if (occState !== null) $(\"since\").textContent = \"for \" + (s < 60 ? s + \" s\" : Math.floor(s / 60) + \" min\");\n}\n\nfunction pageSize() { return Math.max(3, Math.floor(($(\"tbl\").clientHeight - 2) / 36)); }\nfunction renderEvents() {\n  const n = pageSize(), pages = Math.max(1, Math.ceil(EV.length / n));\n  page = Math.min(page, pages - 1);\n  const rows = EV.slice(page * n, page * n + n);\n  $(\"pinfo\").textContent = EV.length ? `${page * n + 1}\u2013${page * n + rows.length} of ${EV.length}` : \"0 of 0\";\n  $(\"prev\").disabled = page === 0; $(\"next\").disabled = page >= pages - 1;\n  if (!rows.length) return;\n  $(\"events\").replaceChildren();\n  rows.forEach(r => {\n    const tr = document.createElement(\"tr\"), tag = document.createElement(\"span\");\n    tag.className = \"ev \" + String(r.Type).replace(/[^A-Z]/g, \"\"); tag.textContent = r.Type;\n    [r.Timestamp, tag, r.Message].forEach(v => { const td = document.createElement(\"td\"); td.append(v); if (typeof v === \"string\") td.title = v; tr.append(td); });\n    $(\"events\").append(tr);\n  });\n}\n$(\"hal\").onclick = () => showTab(\"mon\");\nfunction clockTick() { $(\"clk\").textContent = new Date().toLocaleTimeString(\"en-GB\") + (lastSensor ? \" \u00b7 Updated \" + clock(lastSensor) : \"\"); }\nsetInterval(clockTick, 1000);\n$(\"prev\").onclick = () => { page--; renderEvents(); };\n$(\"next\").onclick = () => { page++; renderEvents(); };\naddEventListener(\"resize\", renderEvents);\n\nfunction showTab(t) {\n  document.querySelectorAll(\"[data-tab]\").forEach(b => b.classList.toggle(\"on\", b.dataset.tab === t));\n  $(\"v-mon\").hidden = t !== \"mon\"; $(\"v-graph\").hidden = t !== \"graph\";\n  if (t === \"graph\") Object.keys(M).forEach(plot); else renderEvents();\n  try { localStorage.setItem(\"ir7-tab\", t); } catch (e) {}\n}\ndocument.querySelectorAll(\"[data-tab]\").forEach(b => b.onclick = () => showTab(b.dataset.tab));\n\nlet send = o => ws && ws.readyState === 1 && ws.send(o);\ndocument.querySelectorAll(\"[data-o]\").forEach(b => b.onclick = () => send(b.dataset.o));\n\nfunction connect() {\n  ws = new WebSocket((location.protocol === \"https:\" ? \"wss://\" : \"ws://\") + location.host + \"/ws/ir7\");\n  ws.onopen = () => setTag($(\"conn\"), \"Live\");\n  ws.onclose = () => { setTag($(\"conn\"), \"Reconnecting\", \"r\"); setTimeout(connect, 3000); };\n  ws.onmessage = m => { try { const p = JSON.parse(m.data); p.type === \"ai\" ? onAi(p.data) : onSensor(p.data); } catch (e) { console.log(e); } };\n}\nasync function events() {\n  try { const rows = await (await fetch(\"/ir7/events\")).json(); if (Array.isArray(rows)) { EV = rows; renderEvents(); } } catch (e) { console.log(e); }\n}\n\n// topographic contour background (marching squares over a smooth \"terrain\"), neutral and faint\nfunction topo() {\n  const c = $(\"bg\"), dpr = devicePixelRatio || 1, W = innerWidth, H = innerHeight, x = c.getContext(\"2d\");\n  c.width = W * dpr; c.height = H * dpr; x.setTransform(dpr, 0, 0, dpr, 0, 0);\n  let sd = 7; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;\n  const hills = Array.from({length: 9}, () => [rnd() * 1.6, rnd(), (rnd() - .4) * 1.4, .12 + rnd() * .22]);\n  const f = (u, v) => hills.reduce((s, [a, b, h, r]) => s + h * Math.exp(-((u - a) ** 2 + (v - b) ** 2) / (2 * r * r)), .15 * Math.sin(u * 5 + v * 3));\n  const st = 8, nx = Math.ceil(W / st) + 1, ny = Math.ceil(H / st) + 1, g = [];\n  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) g.push(f(i * st / W * 1.6, j * st / H));\n  const lo = Math.min(...g), hi = Math.max(...g), L = 26;\n  const S = [[], [[3, 2]], [[2, 1]], [[3, 1]], [[0, 1]], [[3, 0], [2, 1]], [[0, 2]], [[3, 0]], [[3, 0]], [[0, 2]], [[0, 1], [3, 2]], [[0, 1]], [[3, 1]], [[2, 1]], [[3, 2]], []];\n  for (let n = 1; n < L; n++) {\n    const l = lo + (hi - lo) * n / L; x.beginPath();\n    for (let j = 0; j < ny - 1; j++) for (let i = 0; i < nx - 1; i++) {\n      const v = [g[j * nx + i], g[j * nx + i + 1], g[(j + 1) * nx + i + 1], g[(j + 1) * nx + i]], X = i * st, Y = j * st;\n      const P = e => { const [a, b] = [[0, 1], [1, 2], [3, 2], [0, 3]][e], t = (l - v[a]) / (v[b] - v[a]) * st;\n        return [[X + t, Y], [X + st, Y + t], [X + t, Y + st], [X, Y + t]][e]; };\n      S[(v[0] > l) << 3 | (v[1] > l) << 2 | (v[2] > l) << 1 | (v[3] > l)].forEach(([e1, e2]) => { x.moveTo(...P(e1)); x.lineTo(...P(e2)); });\n    }\n    x.strokeStyle = n % 5 ? \"rgba(70,82,94,.08)\" : \"rgba(70,82,94,.14)\"; x.lineWidth = n % 5 ? .9 : 1.3; x.stroke();\n  }\n}\nlet rz; addEventListener(\"resize\", () => { clearTimeout(rz); rz = setTimeout(topo, 150); }); topo();\n\n// ?demo = fake room data, for rehearsing or previewing without Node-RED\nfunction demo() {\n  let t = 31, h = 52, p = 1010, du = 32, l = 640, dist = 60, fan = false, ov = \"AUTO\", ovSince = 0, n = 0, aiwh = 0, oldwh = 0, last = \"\";\n  const r = (a, b) => a + Math.random() * (b - a), cl = (v, a, b) => Math.min(b, Math.max(a, v)), now = () => new Date().toLocaleString(\"sv-SE\");\n  const log = (Type, Message) => { EV.unshift({Timestamp: now(), Type, Message}); renderEvents(); };\n  send = o => { if (o.startsWith(\"ACK:\")) log(\"ACK\", `Operator acknowledged ${o.slice(4).toLowerCase()} alarm`); else if (o !== ov) { ov = o; ovSince = Date.now(); log(\"OVERRIDE\", \"Human set fan control to \" + o); } };\n  setTag($(\"conn\"), \"Demo data\"); log(\"SYSTEM\", \"AI Brain started\");\n  setInterval(() => {\n    n++;\n    if (ov !== \"AUTO\" && Date.now() - ovSince >= 900000) { ov = \"AUTO\"; log(\"OVERRIDE\", \"Manual override expired after 15 min: AI control restored\"); }\n    t = cl(t + r(-.08, .1) - (fan ? .35 : 0), 26, 40); h = cl(h + r(-.05, .2) - (fan ? 1 : 0), 35, 72);\n    p = cl(p + r(-.4, .4), 990, 1040); du = cl(du + r(-.5, .55) - (fan ? 1.2 : 0), 10, 70); l = Math.round(cl(l + r(-12, 12), 420, 820));\n    if (n % 45 === 0) dist = dist < 100 ? 140 : 60; dist = cl(dist + r(-1.5, 1.5), 20, 180);\n    const occ = dist < 100, eta = h < 60 ? (60 - h) / 2.25 : 0;\n    let would = false, status = \"All normal\", reason = \"Fan OFF: all fan-fixable readings normal.\";\n    if (!occ) { status = \"Room empty\"; reason = \"Fan OFF: room unoccupied.\"; }\n    else if (h >= 60) { would = true; status = \"Too humid\"; reason = `Fan ON: humidity ${h.toFixed(1)} % over 60 %.`; }\n    else if (eta <= 3) { would = true; status = \"Pre-cooling\"; reason = `Fan ON: humidity ${h.toFixed(1)} % rising, will exceed 60 % in ~${eta.toFixed(1)} min, cooling early.`; }\n    fan = ov === \"AUTO\" ? would : ov === \"ON\";\n    if (ov !== \"AUTO\") { status = \"Manual override\"; reason = `HUMAN OVERRIDE (fan ${ov}). AI would turn it ${would ? \"ON\" : \"OFF\"}.`; }\n    if (status !== last) { log(\"DECISION\", reason); last = status; }\n    if (fan && ov === \"AUTO\") aiwh += 5 * 2 / 3600; if (occ && (l <= 500 || h >= 60 || t >= 37 || du >= 55)) oldwh += 5 * 2 / 3600;\n    const R = {temperature: +t.toFixed(2), humidity: +h.toFixed(2), pressure: +p.toFixed(2), dust: +du.toFixed(2), light: l, distance: +dist.toFixed(2), fan_state: fan ? 1 : 0, mode: \"AI\"};\n    const was = Object.fromEntries(Object.entries(AL).map(([k, a]) => [k, a.rtn ? 0 : a.lvl]));\n    onSensor(R);\n    Object.keys(LIM).forEach(k => { const a = AL[k], now2 = a && !a.rtn ? a.lvl : 0, w = was[k] || 0;\n      if (now2 > w) log(now2 === 2 ? \"ALARM\" : \"WARNING\", `${now2 === 2 ? \"Alarm\" : \"Warning\"}: ${k} ${a.v} ${a.side === \"high\" ? \">=\" : \"<=\"} ${a.lim}`);\n      else if (!now2 && w) SUP[k] !== undefined ? log(\"SUPPRESSED\", `${k} alarm suppressed: room empty`) : log(\"CLEARED\", `Cleared: ${k} back to normal (${R[k]})`); });\n    const bad = (t >= 37) + (h >= 60) + (du >= 55);\n    onAi({score: Math.max(0, 100 - bad * 18 - (h > 55 ? 6 : 0)), forecast: h > 50 && h < 60 && occ ? {humidity: +eta.toFixed(1)} : {}, anomalies: [], alerts: [],\n      would: would ? \"ON\" : \"OFF\", fan: fan ? \"ON\" : \"OFF\", mode: ov === \"AUTO\" ? \"AI\" : \"HUMAN\", status, reason, override_left_s: ov === \"AUTO\" ? 0 : Math.round(900 - (Date.now() - ovSince) / 1000),\n      energy: {ai_wh: aiwh, old_wh: oldwh, saved_wh: oldwh - aiwh, co2_g: (oldwh - aiwh) * .758}});\n  }, 2000);\n}\n\nlet tab = \"mon\"; try { tab = localStorage.getItem(\"ir7-tab\") || \"mon\"; } catch (e) {}\nshowTab(tab);\nif (window.IR7_DEMO || new URLSearchParams(location.search).has(\"demo\")) demo();\nelse { connect(); events(); setInterval(events, 10000); }\nsetInterval(tick, 2000);\n</script>\n</body>\n</html>\n",
+    "output": "str"
+  },
+  {
+    "id": "a17e000000000003",
+    "type": "http response",
+    "z": "a17e0000000000a1",
+    "x": 540,
+    "y": 60,
+    "wires": [],
+    "name": "",
+    "statusCode": "",
+    "headers": {
+      "content-type": "text/html; charset=utf-8"
+    }
+  },
+  {
+    "id": "a17e000000000004",
+    "type": "mqtt in",
+    "z": "a17e0000000000a1",
+    "x": 150,
+    "y": 140,
+    "wires": [
+      [
+        "a17e000000000006"
+      ]
+    ],
+    "name": "Sensor data",
+    "topic": "muaz/iot/mfi",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "fd80b27dfc9a2898",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0
+  },
+  {
+    "id": "a17e000000000005",
+    "type": "mqtt in",
+    "z": "a17e0000000000a1",
+    "x": 150,
+    "y": 200,
+    "wires": [
+      [
+        "a17e000000000006"
+      ]
+    ],
+    "name": "AI brain",
+    "topic": "muaz/iot/mfi/ai",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "fd80b27dfc9a2898",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0
+  },
+  {
+    "id": "a17e000000000006",
+    "type": "function",
+    "z": "a17e0000000000a1",
+    "x": 370,
+    "y": 170,
+    "wires": [
+      [
+        "a17e000000000007"
+      ]
+    ],
+    "name": "Tag for page",
+    "func": "const d = typeof msg.payload === 'string' ? JSON.parse(msg.payload) : msg.payload;\nmsg.payload = JSON.stringify({type: msg.topic.endsWith('/ai') ? 'ai' : 'sensor', data: d});\nreturn msg;",
+    "outputs": 1
+  },
+  {
+    "id": "a17e000000000007",
+    "type": "websocket out",
+    "z": "a17e0000000000a1",
+    "x": 580,
+    "y": 170,
+    "wires": [],
+    "name": "ws /ws/ir7",
+    "server": "a17e0000000000a2",
+    "client": ""
+  },
+  {
+    "id": "a17e000000000008",
+    "type": "websocket in",
+    "z": "a17e0000000000a1",
+    "x": 150,
+    "y": 280,
+    "wires": [
+      [
+        "a17e000000000009"
+      ]
+    ],
+    "name": "Override + alarm ACK",
+    "server": "a17e0000000000a2",
+    "client": ""
+  },
+  {
+    "id": "a17e000000000009",
+    "type": "function",
+    "z": "a17e0000000000a1",
+    "x": 370,
+    "y": 280,
+    "wires": [
+      [
+        "a17e00000000000a"
+      ]
+    ],
+    "name": "Override / ACK only",
+    "func": "const p = String(msg.payload).trim().toUpperCase();\nif (!['AUTO', 'ON', 'OFF'].includes(p) && !/^ACK:(TEMPERATURE|HUMIDITY|PRESSURE|DUST|LIGHT)$/.test(p)) return null;\nmsg.payload = p;\nreturn msg;",
+    "outputs": 1
+  },
+  {
+    "id": "a17e00000000000a",
+    "type": "mqtt out",
+    "z": "a17e0000000000a1",
+    "x": 600,
+    "y": 280,
+    "wires": [],
+    "name": "Override",
+    "topic": "muaz/iot/mfi/override",
+    "qos": "0",
+    "retain": "false",
+    "broker": "fd80b27dfc9a2898"
+  },
+  {
+    "id": "a17e00000000000b",
+    "type": "http in",
+    "z": "a17e0000000000a1",
+    "x": 150,
+    "y": 360,
+    "wires": [
+      [
+        "a17e00000000000c"
+      ]
+    ],
+    "name": "GET /ir7/events",
+    "url": "/ir7/events",
+    "method": "get",
+    "upload": false,
+    "swaggerDoc": ""
+  },
+  {
+    "id": "a17e00000000000c",
+    "type": "sqlite",
+    "z": "a17e0000000000a1",
+    "x": 370,
+    "y": 360,
+    "wires": [
+      [
+        "a17e00000000000d"
+      ]
+    ],
+    "name": "AI_Events",
+    "mydb": "50a196d0c453da90",
+    "sqlquery": "fixed",
+    "sql": "SELECT * FROM AI_Events ORDER BY ID DESC LIMIT 100;"
+  },
+  {
+    "id": "a17e00000000000d",
+    "type": "http response",
+    "z": "a17e0000000000a1",
+    "x": 580,
+    "y": 360,
+    "wires": [],
+    "name": "",
+    "statusCode": "",
+    "headers": {}
+  }
+]
